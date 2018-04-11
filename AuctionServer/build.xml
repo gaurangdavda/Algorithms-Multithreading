@@ -1,0 +1,27 @@
+<project name="DavdaGaurangAssignment8" default="auctionServerSimulation" basedir=".">
+	<property name="build.dir" value="${basedir}/bin/"/>
+	<property name="src.dir" value="${basedir}/src/"/>
+	<property name="jar.dir" value="${basedir}/jar"/>
+	<target name="auctionServerSimulation" depends="compile-sync, jar-sync">
+		<echo message="***Simulating the Auction Server***"/>
+		<java fork="true" jar="${jar.dir}/${ant.project.name}.jar"/>
+	</target>
+	
+	<target name="compile-sync" depends="clean-sync">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${build.dir}"/>
+	</target>
+	
+	<target name="clean-sync">
+		<delete dir="${build.dir}"/>
+		<delete dir="${jar.dir}"/>
+	</target>
+	
+	<target name="jar-sync" depends="compile-sync">
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="hw8.Simulation"/>
+			</manifest>
+		</jar>
+	</target>
+</project>
