@@ -1,0 +1,85 @@
+<project name="DavdaGaurangAssignment1" default="parallelMaximizer" basedir=".">
+	<property name="build.dir" value="${basedir}/bin/"/>
+	<property name="src.dir" value="${basedir}/src/"/>
+	<property name="jar.dir" value="${basedir}/jar"/>
+	<property name="report.dir"  value="${basedir}/junitreport"/>
+	<path id = "classpath">
+		<fileset dir="lib" includes="**/*.jar"/>
+	</path>
+
+	<target name="parallelMaximizer" depends="compile-sync, jar-sync">
+		<echo message="***Calling the main method in partA ParallelMaximizer class***"/>
+		<java fork="true" jar="${jar.dir}/${ant.project.name}.jar" classpathref="classpath"/>
+		<mkdir dir="${report.dir}"/>
+		<antcall target="junit-partA"/>
+		<antcall target="jar-async"/>
+		<echo message="***Calling the main method in partB ParallelMaximizer class***"/>
+		<java fork="true" jar="${jar.dir}/${ant.project.name}.jar" classpathref="classpath"/>
+		<antcall target="junit-partB"/>
+	</target>
+	
+	<target name="compile-sync" depends="clean-sync">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath"/>
+	</target>
+	
+	<target name="clean-sync">
+		<delete dir="${build.dir}"/>
+		<delete dir="${jar.dir}"/>
+		<delete dir="${report.dir}"/>
+	</target>
+	
+	<target name="jar-sync" depends="compile-sync">
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="partA.ParallelMaximizer"/>
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="junit-partA">
+		<echo message="***Calling the JUnit in partA***"/>
+		<path id="exec-jar" location="${jar.dir}/${ant.project.name}.jar"/>
+		<junit printsummary="yes">
+            <classpath>
+                <path refid="classpath"/>
+                <path refid="exec-jar"/>
+            </classpath>           
+            <formatter type="xml"/> 
+            <batchtest fork="yes" todir="${report.dir}">
+                <fileset dir="${src.dir}" includes="partA/*Test.java"/>
+            </batchtest>
+        </junit>
+	</target>	
+	
+	<target name="jar-async">
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="partB.ParallelMaximizer"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="junit-partB">
+		<echo message="***Calling the JUnit in partB***"/>
+		<path id="exec-jar" location="${jar.dir}/${ant.project.name}.jar"/>
+		<junit printsummary="yes">
+            <classpath>
+                <path refid="classpath"/>
+                <path refid="exec-jar"/>
+            </classpath>
+            <formatter type="xml"/>            
+            <batchtest fork="yes" todir="${report.dir}">
+                <fileset dir="${src.dir}" includes="partB/*Test.java"/>
+            </batchtest>
+        </junit>
+	</target>
+	
+	<target name="junitreport">
+        <junitreport todir="${report.dir}">
+            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
+            <report todir="${report.dir}"/>
+        </junitreport>
+    </target>
+
+</project>
